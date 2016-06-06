@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+'use strict';
+
+const GYPKG = require('../');
+
+const yargs = require('yargs')
+    .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
+    .demand(1)
+    .command('gen <gyp-file>', 'generate build configuration out of .gyp file')
+    .command('deps', 'dependency helper to be used in `dependencies`')
+    .command('type', 'dependency helper to be used in `type`')
+    .alias('h', 'help')
+    .help();
+
+const argv = yargs.argv;
+const cmd = argv._[0];
+
+const gypkg = new GYPKG();
+if (cmd === 'gen')
+  return gypkg.generate(argv['gyp-file'], argv._.slice(1));
+
+if (cmd === 'deps') {
+  gypkg.deps(argv._.slice(1), (err, paths) => {
+    if (err)
+      throw err;
+
+    console.log(paths.join('\n'));
+  });
+  return;
+}
+
+// TODO(indutny): This needs some serious consideration
+if (cmd === 'type') {
+  console.log('static_library');
+  return;
+}
+
+yargs.showHelp();
+console.error(`Unknown command: ${cmd}`);
+process.exit(1);

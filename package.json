@@ -1,0 +1,32 @@
+{
+  "name": "gypkg",
+  "version": "1.0.0",
+  "description": "GYP based package manager",
+  "bin": {
+    "gypkg": "bin/gypkg"
+  },
+  "main": "lib/gypkg.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/indutny/gypkg.git"
+  },
+  "keywords": [
+    "GYP",
+    "package",
+    "manager"
+  ],
+  "author": "Fedor Indutny <fedor@indutny.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/indutny/gypkg/issues"
+  },
+  "homepage": "https://github.com/indutny/gypkg#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.5",
+    "rimraf": "^2.5.2",
+    "yargs": "^4.7.1"
+  }
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const GYPKG = require('../');
+const gypkg = require('../');
 
 const yargs = require('yargs')
     .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
@@ -17,9 +17,10 @@ const yargs = require('yargs')
 const argv = yargs.argv;
 const cmd = argv._[0];
 
-const gypkg = new GYPKG({ verbose: argv.verbose });
 if (cmd === 'gen') {
-  return gypkg.generate(argv['gyp-file'], argv._.slice(1), (err) => {
+  const server = new gypkg.Server({ verbose: argv.verbose });
+
+  return server.generate(argv['gyp-file'], argv._.slice(1), (err) => {
     if (err)
       throw err;
 
@@ -29,13 +30,14 @@ if (cmd === 'gen') {
 }
 
 if (cmd === 'deps') {
-  gypkg.deps(argv._.slice(1), (err, paths) => {
+  const client = new gypkg.Client({ verbose: argv.verbose });
+
+  return client.deps(argv._.slice(1), (err, paths) => {
     if (err)
       throw err;
 
     console.log(paths.join('\n'));
   })
-  return;
 }
 
 // TODO(indutny): This needs some serious consideration

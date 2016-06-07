@@ -8,7 +8,6 @@ import shutil
 import subprocess
 import time
 import hashlib
-import semantic_version as semver
 
 GIT = os.environ.get('GIT_SSH_COMMAND')
 if not GIT:
@@ -131,6 +130,8 @@ def semver_hash(version):
 
 
 def checkout_semver(repo, version):
+  import semantic_version as semver
+
   tags = run_git([ GIT, 'tag', '--list' ], cwd=repo).split('\n')
   s = semver.Spec(version)
   tags = [ semver.Version(tag[1:]) for tag in tags if tag_pattern.match(tag) ]

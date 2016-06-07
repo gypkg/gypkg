@@ -26,6 +26,14 @@ this and also a dependency management problem as well.
 npm install -g gypkg
 ```
 
+Alternatively, the `./bin/gypkg` compatiblity script may be used, if Node.js in
+not available on the system. Python requirements:
+
+* `pip install semantic_version`
+
+*NOTE: Node.js script performs much better than the python one and should be
+used unless it is absolutely necessary to run this without Node.js*
+
 ## Usage
 
 A `.gyp` file for a C project may be written like this:

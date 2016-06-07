@@ -53,6 +53,10 @@ make -C out/ -j9
 `gen` command will install all dependencies into `gypkg_deps` and will update
 them automatically on next `gen` call.
 
+## Examples
+
+* [file-shooter.gyp][1]
+
 *TODO(indutny): write detailed readme*
 
 ## LICENSE
@@ -81,3 +85,4 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [0]: https://gyp.gsrc.io/
+[1]: https://github.com/indutny/file-shooter/blob/master/file-shooter.gyp

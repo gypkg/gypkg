@@ -9,15 +9,24 @@ const yargs = require('yargs')
     .command('gen <gyp-file>', 'generate build configuration out of .gyp file')
     .command('deps', 'dependency helper to be used in `dependencies`')
     .command('type', 'dependency helper to be used in `type`')
+    .boolean('verbose')
     .alias('h', 'help')
+    .alias('v', 'verbose')
     .help();
 
 const argv = yargs.argv;
 const cmd = argv._[0];
 
-const gypkg = new GYPKG();
-if (cmd === 'gen')
-  return gypkg.generate(argv['gyp-file'], argv._.slice(1));
+const gypkg = new GYPKG({ verbose: argv.verbose });
+if (cmd === 'gen') {
+  return gypkg.generate(argv['gyp-file'], argv._.slice(1), (err) => {
+    if (err)
+      throw err;
+
+  }).on('log', (line) => {
+    console.error(line);
+  });
+}
 
 if (cmd === 'deps') {
   gypkg.deps(argv._.slice(1), (err, paths) => {
@@ -25,7 +34,7 @@ if (cmd === 'deps') {
       throw err;
 
     console.log(paths.join('\n'));
-  });
+  })
   return;
 }
 

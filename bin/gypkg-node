@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+/*
+ * PLEASE USE `gypkg` in `.gyp` files
+ */
+'use strict';
+
+const gypkg = require('../');
+
+const yargs = require('yargs')
+    .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
+    .demand(1)
+    .command('gen <gyp-file>', 'generate build configuration out of .gyp file')
+    .command('deps', 'dependency helper to be used in `dependencies`')
+    .command('type', 'dependency helper to be used in `type`')
+    .boolean('verbose')
+    .alias('h', 'help')
+    .alias('v', 'verbose')
+    .help();
+
+const argv = yargs.argv;
+const cmd = argv._[0];
+
+if (cmd === 'gen') {
+  const server = new gypkg.Server({ verbose: argv.verbose });
+
+  return server.generate(argv['gyp-file'], argv._.slice(1), (err) => {
+    if (err)
+      throw err;
+
+  }).on('log', (line) => {
+    console.error(line);
+  });
+}
+
+if (cmd === 'deps') {
+  const client = new gypkg.Client({ verbose: argv.verbose });
+
+  return client.deps(argv._.slice(1), (err, paths) => {
+    if (err)
+      throw err;
+
+    console.log(paths.join('\n'));
+  })
+}
+
+// TODO(indutny): This needs some serious consideration
+if (cmd === 'type') {
+  console.log('static_library');
+  return;
+}
+
+yargs.showHelp();
+console.error(`Unknown command: ${cmd}`);
+process.exit(1);

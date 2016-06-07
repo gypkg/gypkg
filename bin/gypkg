@@ -1,51 +1,237 @@
-#!/usr/bin/env node
-'use strict';
+#!/usr/bin/env python
+import os
+import platform
+import sys
+import re
+import urlparse
+import shutil
+import subprocess
+import time
+import hashlib
+import semantic_version as semver
 
-const gypkg = require('../');
+GIT = os.environ.get('GIT_SSH_COMMAND')
+if not GIT:
+  GIT = os.environ.get('GIT_SSH')
+if not GIT:
+  GIT = os.environ.get('GIT_EXEC_PATH')
+if not GIT:
+  GIT = 'git'
 
-const yargs = require('yargs')
-    .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
-    .demand(1)
-    .command('gen <gyp-file>', 'generate build configuration out of .gyp file')
-    .command('deps', 'dependency helper to be used in `dependencies`')
-    .command('type', 'dependency helper to be used in `type`')
-    .boolean('verbose')
-    .alias('h', 'help')
-    .alias('v', 'verbose')
-    .help();
+dep_pattern = re.compile('^([^\s]*)(?::|\s*=>\s*)([^:]+):([^:]+)$')
+branch_pattern = re.compile('#([^#]+)$')
+version_pattern = re.compile('@([^@:]+)$')
+git_ssh_pattern = re.compile('^git@([^:]*):(.*)(?:.git)?$')
+git_lock_pattern = re.compile('index.lock')
+tag_pattern = re.compile('^v')
+semver_postfix_pattern = re.compile('@semver-[0-9a-f]+$')
 
-const argv = yargs.argv;
-const cmd = argv._[0];
+script_dir = os.path.dirname(__file__)
+gypkg_root = os.path.normpath(script_dir)
+sys.path.insert(0, os.path.join(gypkg_root, '..', 'tools', 'gyp', 'pylib'))
+import gyp
 
-if (cmd === 'gen') {
-  const server = new gypkg.Server({ verbose: argv.verbose });
+def print_usage():
+  print "usage: %s gen file.gyp" % sys.argv[0]
+  print "       %s deps [...list...]" % sys.argv[0]
+  print "       %s type" % sys.argv[0]
+  sys.exit(2)
 
-  return server.generate(argv['gyp-file'], argv._.slice(1), (err) => {
-    if (err)
-      throw err;
 
-  }).on('log', (line) => {
-    console.error(line);
-  });
-}
+def host_arch():
+  machine = platform.machine()
+  if machine == 'i386': return 'ia32'
+  if machine == 'x86_64': return 'x64'
+  if machine.startswith('arm'): return 'arm'
+  if machine.startswith('mips'): return 'mips'
+  return machine  # Return as-is and hope for the best.
 
-if (cmd === 'deps') {
-  const client = new gypkg.Client({ verbose: argv.verbose });
 
-  return client.deps(argv._.slice(1), (err, paths) => {
-    if (err)
-      throw err;
+def run_gyp(args):
+  rc = gyp.main(args)
+  if rc != 0:
+    print 'Error running GYP'
+    sys.exit(rc)
 
-    console.log(paths.join('\n'));
-  })
-}
 
-// TODO(indutny): This needs some serious consideration
-if (cmd === 'type') {
-  console.log('static_library');
-  return;
-}
+def generate(gyp_file, extra):
+  if '--' not in extra:
+    extra = []
+  else:
+    index = extra.index('--')
+    extra = extra[index + 1:]
 
-yargs.showHelp();
-console.error(`Unknown command: ${cmd}`);
-process.exit(1);
+  root = os.path.normpath(os.path.dirname(gyp_file))
+  output_dir = os.path.join(os.path.abspath(root), 'out')
+
+  # Remove old dependencies
+  deps_dir = os.path.join(os.path.abspath(root), 'gypkg_deps')
+  shutil.rmtree(deps_dir, ignore_errors=True)
+  os.environ['GYPKG_DEPS'] = deps_dir
+
+  args = extra
+
+  if sys.platform == 'win32':
+    # we force vs 2010 over 2008 which would otherwise be the default for gyp
+    if not os.environ.get('GYP_MSVS_VERSION'):
+      os.environ['GYP_MSVS_VERSION'] = '2010'
+
+  args.append(os.path.join(os.path.abspath(root), gyp_file))
+  common_fn  = os.path.join(os.path.abspath(gypkg_root), '..', 'common.gypi')
+  options_fn = os.path.join(os.path.abspath(root), 'options.gypi')
+
+  args.extend(['-I', common_fn])
+
+  if os.path.exists(options_fn):
+    args.extend(['-I', options_fn])
+
+  args.append('--depth=' + root)
+
+  # There's a bug with windows which doesn't allow this feature.
+  if sys.platform != 'win32':
+    if '-f' not in args:
+      args.extend('-f make'.split())
+    if 'ninja' not in args:
+      args.extend(['-Goutput_dir=' + output_dir])
+      args.extend(['--generator-output', output_dir])
+
+  if not any(a.startswith('-Dhost_arch=') for a in args):
+    args.append('-Dhost_arch=%s' % host_arch())
+
+  if not any(a.startswith('-Dtarget_arch=') for a in args):
+    args.append('-Dtarget_arch=%s' % host_arch())
+
+  gyp_args = list(args)
+  print "NOTE: Running compatibility version of gypkg"
+  print "NOTE: Please consider installing Node.js and using:"
+  print "NOTE: `npm install -g gypkg`"
+  print gyp_args
+  run_gyp(gyp_args)
+
+
+def run_git(args, cwd=None):
+  while True:
+    proc = subprocess.Popen(args, stdin=sys.stdin, stdout = subprocess.PIPE,
+                            stderr = subprocess.PIPE,
+                            cwd=cwd)
+
+    stdout, stderr = proc.communicate('')
+    if proc.wait() != 0:
+      if git_lock_pattern.search(stderr) != None:
+        # Sleep for 250ms and retry if git directory is locked
+        time.sleep(0.25)
+        continue
+      sys.stderr.write(stderr)
+      sys.exit(proc.wait())
+    return stdout
+
+
+def semver_hash(version):
+  return hashlib.sha256(version).hexdigest()[0:7]
+
+
+def checkout_semver(repo, version):
+  tags = run_git([ GIT, 'tag', '--list' ], cwd=repo).split('\n')
+  s = semver.Spec(version)
+  tags = [ semver.Version(tag[1:]) for tag in tags if tag_pattern.match(tag) ]
+  tags = [ tag for tag in tags if s.match(tag) ]
+  tags.sort(reverse=True)
+  if len(tags) < 1:
+    sys.stderr.write('No matching version found, ' + repo + ':' + version +
+                     '\n')
+
+  tag = str(tags[0])
+  run_git([ GIT, 'reset', '--hard', 'v' + tag ], cwd=repo)
+
+  link_src = os.path.basename(repo)
+  link_dst = semver_postfix_pattern.sub('', repo) + '@v' + tag
+  if os.path.islink(link_dst) or os.path.isdir(link_dst):
+    return link_dst
+
+  # TODO(indutny): Windows
+  os.symlink(link_src, link_dst)
+  return link_dst
+
+
+def install_dep(item):
+  match = dep_pattern.match(item)
+  if match == None:
+    sys.stderr.write("Invalid dependency spec %s\n" % item)
+    sys.exit(1)
+
+  deps_dir = os.environ['GYPKG_DEPS']
+
+  uri = match.group(1)
+  gyp_file = match.group(2)
+  gyp_target = match.group(3)
+
+  branch = branch_pattern.search(uri)
+  version = version_pattern.search(uri)
+
+  if branch != None:
+    branch = branch.group(1)
+    version = None
+    uri = branch_pattern.sub('', uri)
+  elif version != None:
+    branch = None
+    version = version.group(1)
+    uri = version_pattern.sub('', uri)
+
+  uri = git_ssh_pattern.sub('git+ssh://\g<1>/\g<2>', uri)
+  parsed = urlparse.urlparse(uri)
+
+  # Local dependency
+  if parsed.scheme == '':
+    return os.path.join(parsed.path, gyp_file) + ':' + gyp_target
+
+  # Remote dependency
+  id = parsed.path[1:]
+  if branch != None:
+    id += '@' + branch
+  elif version != None:
+    id += '@semver-' + semver_hash(version)
+  else:
+    id += '@latest'
+
+  if parsed.netloc != 'github.com':
+    id = os.path.join(parsed.netloc, id)
+
+  install_dir = os.path.join(deps_dir, id)
+  if not os.path.isdir(install_dir):
+    if branch != None:
+      args = [ GIT, 'clone', '--depth', '1', '--branch', branch, uri,
+               install_dir ]
+    elif version == None:
+      args = [ GIT , 'clone', '--depth', '1', branch, uri, install_dir ]
+    else:
+      args = [ GIT, 'clone', uri, install_dir ]
+    run_git(args)
+
+  if version != None:
+    install_dir = checkout_semver(install_dir, version)
+
+  return os.path.join(install_dir, gyp_file) + ':' + gyp_target
+
+
+def deps(items):
+  for item in items:
+    print install_dep(item)
+
+if __name__ == '__main__':
+  if len(sys.argv) < 2:
+    print_usage()
+
+  if sys.argv[1] == 'type':
+    print "static_library"
+    sys.exit(0)
+
+  if sys.argv[1] == 'gen':
+    if len(sys.argv) < 3:
+      print_usage()
+
+    generate(sys.argv[2], sys.argv[3:])
+    sys.exit(0)
+
+  if sys.argv[1] == 'deps':
+    deps(sys.argv[2:])
+    sys.exit(0)

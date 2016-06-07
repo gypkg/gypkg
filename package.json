@@ -3,7 +3,7 @@
   "version": "1.2.5",
   "description": "GYP based package manager",
   "bin": {
-    "gypkg": "bin/gypkg"
+    "gypkg": "bin/gypkg-node"
   },
   "main": "lib/gypkg.js",
   "scripts": {

@@ -1,4 +1,5 @@
 # gypkg
+[![NPM version](https://badge.fury.io/js/gypkg.svg)](http://badge.fury.io/js/gypkg)
 
 A [GYP][0]-based package manager for C projects.
 

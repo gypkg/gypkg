@@ -26,7 +26,6 @@
   "homepage": "https://github.com/indutny/gypkg#readme",
   "dependencies": {
     "async": "^2.0.0-rc.5",
-    "rimraf": "^2.5.2",
     "semver": "^5.1.0",
     "yargs": "^4.7.1"
   }

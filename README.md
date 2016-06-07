@@ -1,8 +1,22 @@
 # gypkg
 
-**HIGHLY UNSTABLE**
-
 A [GYP][0]-based package manager for C projects.
+
+## Why?
+
+[GYP][0] is a very lovely way to manage dependencies, however the amount of the
+boilerplate code required to build the project is very huge:
+
+* Project's own `gyp` repository checkout
+* `common.gypi` file with default compiler warning flags, etc
+* `gyp_project_name` executable python script that sets proper [GYP][0] defines
+  and executes `gyp_main.py`
+* Dependencies has to be checked out into the project tree
+* Subdependencies can't be easily shared between different dependencies
+  (`a` depends on `b` and `c`; `b` depends on `c`)
+
+All of this has to be repeated in every project, but fear not - `gypkg` fixes
+this and also a dependency management problem as well.
 
 ## Installation
 
@@ -18,6 +32,8 @@ A `.gyp` file for a C project may be written like this:
 {
   "targets": [{
     "target_name": "proj",
+
+    # So far this returns only `static_library`
     "type": "<!(gypkg type)",
 
     "variables": {
@@ -53,11 +69,32 @@ make -C out/ -j9
 `gen` command will install all dependencies into `gypkg_deps` and will update
 them automatically on next `gen` call.
 
+## Dependency management
+
+`gypkg` supports local and remote (git) dependencies. Remote dependencies are
+installed into `gypkg_deps/` folder in the root directory of the project (the
+one that has the main `.gyp` file). Nested dependencies still live in the same
+`gypkg_deps/` in the root directory.
+
+The syntax for declaring dependencies is:
+
+* `/path/to/dependency => /sub/path/to/main.gyp:target_name` - use local
+  dependency
+* `git://github.com/author/project => /path/to/main.gyp:target_name` -
+  checkout the latest commit of remote dependency. Note that (`https://` and
+  `git@` are supported too)
+* `git://github.com/author/project#branch => /path/to/main.gyp:target_name` -
+  checkout particular branch/hash of remote dependency
+* `git://github.com/author/project@semver => /path/to/main.gyp:target_name` -
+  checkout whole repository and find the latest version-tag (the on that starts
+  with `v`) that matches the particular `semver`.
+
+See [Usage][2] section above, or [Examples][3] below for particular gist of how
+[GYP][0] file may look like.
+
 ## Examples
 
 * [file-shooter.gyp][1]
-
-*TODO(indutny): write detailed readme*
 
 ## LICENSE
 
@@ -86,3 +123,5 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [0]: https://gyp.gsrc.io/
 [1]: https://github.com/indutny/file-shooter/blob/master/file-shooter.gyp
+[2]: #usage
+[3]: #examples

@@ -22,7 +22,7 @@ A `.gyp` file for a C project may be written like this:
 
     "variables": {
       "gypkg_deps": [
-        # repo-addr@semver:path/to/file.gyp:target_name
+        # repo-addr@semver => path/to/file.gyp:target_name
         "git://github.com/libuv/libuv@^1.9.1 => uv.gyp:libuv",
       ],
     },

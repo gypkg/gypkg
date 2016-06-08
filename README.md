@@ -26,14 +26,6 @@ this and also a dependency management problem as well.
 npm install -g gypkg
 ```
 
-Alternatively, the `./bin/gypkg` compatiblity script may be used, if Node.js in
-not available on the system. Python requirements:
-
-* `pip install semantic_version`
-
-*NOTE: Node.js script performs much better than the python one and should be
-used unless it is absolutely necessary to run this without Node.js*
-
 ## Demo
 
 [![asciicast](https://asciinema.org/a/48171.png)](https://asciinema.org/a/48171)
@@ -109,6 +101,20 @@ See [Usage][2] section above, or [Examples][3] below for particular gist of how
 
 * [file-shooter.gyp][1]
 
+## Compatbility
+
+While Node.js implementation of `gypkg` loads dependencies in asynchronously and
+in parallel, it may be required for gypkg-based project to be distributed to
+the platforms without Node.js binaries.
+
+In this case `gypkg gen --freeze file.gyp` can be used to generate
+`.gypkg-freeze` file, which will help [./bin/gypkg][4] python shim in resolving
+all dependencies statically.
+
+`.gypkg-freeze` and [./bin/gypkg][4] should be distributed with the project in
+such cases , and the project users should be advised to extend their `PATH`
+environment variable with a folder that contains [./bin/gypkg][4] script.
+
 ## LICENSE
 
 This software is licensed under the MIT License.
@@ -138,3 +144,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [1]: https://github.com/indutny/file-shooter/blob/master/file-shooter.gyp
 [2]: #usage
 [3]: #examples
+[4]: https://github.com/indutny/gypkg/blob/master/bin/gypkg

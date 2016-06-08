@@ -34,6 +34,10 @@ not available on the system. Python requirements:
 *NOTE: Node.js script performs much better than the python one and should be
 used unless it is absolutely necessary to run this without Node.js*
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/48171.png)](https://asciinema.org/a/48171)
+
 ## Usage
 
 A `.gyp` file for a C project may be written like this:

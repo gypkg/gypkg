@@ -51,7 +51,7 @@ def deps(items):
     freeze = os.path.join(root, '.gypkg-freeze')
     if os.path.exists(freeze):
       break
-    root = os.path.join(root, '..')
+    root = os.path.normpath(os.path.join(root, '..'))
     # TODO(indutny): Windows
     if root == '/':
       sys.stderr.write('No .gypkg-freeze file found\n')

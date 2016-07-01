@@ -4,24 +4,38 @@
  */
 'use strict';
 
+const util = require('util');
+
 const gypkg = require('../');
+
+const genOptions = {
+  freeze: {
+    alias: 'f',
+    boolean: true,
+    describe: 'generate .gypkg-freeze file'
+  },
+  verbose: {
+    alias: 'v',
+    boolean: true,
+    describe: 'print verbose output'
+  }
+};
+
+const buildOptions = util._extend({
+  config: {
+    alias: 'c',
+    default: 'Release',
+    describe: 'configuration to build'
+  }
+}, genOptions);
 
 const yargs = require('yargs')
     .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
     .demand(1)
+    .command('build <gyp-file>',
+             'build all projects in a .gyp file', buildOptions)
     .command('gen <gyp-file>',
-             'generate build configuration out of .gyp file', {
-               freeze: {
-                 alias: 'f',
-                 boolean: true,
-                 describe: 'generate .gypkg-freeze file'
-               },
-               verbose: {
-                 alias: 'v',
-                 boolean: true,
-                 describe: 'print verbose output'
-               }
-             })
+             'generate build configuration out of .gyp file', genOptions)
     .command('deps', 'dependency helper to be used in `dependencies`')
     .command('type', 'dependency helper to be used in `type`')
     .alias('h', 'help')
@@ -30,10 +44,11 @@ const yargs = require('yargs')
 const argv = yargs.argv;
 const cmd = argv._[0];
 
-if (cmd === 'gen') {
+if (cmd === 'gen' || cmd === 'build') {
   const server = new gypkg.Server({
     verbose: argv.verbose,
-    freeze: argv.freeze
+    freeze: argv.freeze,
+    config: cmd === 'build' && argv.config
   });
 
   return server.generate(argv['gyp-file'], argv._.slice(1), (err) => {

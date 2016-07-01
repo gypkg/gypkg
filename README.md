@@ -63,16 +63,15 @@ A `.gyp` file for a C project may be written like this:
 }
 ```
 
-Then a `gypkg` CLI tool can be used to generate a `Makefile` (or any other
-build system's file support by [GYP][0]):
+Then a `gypkg` CLI tool can be used to build a project (NOTE: while [`ninja`][5]
+is not necessary it is required for incremental builds):
 
 ```bash
-gypkg gen file.gyp -- -Duv_library=static-library
-make -C out/ -j9
+gypkg build file.gyp -- -Duv_library=static-library
 ```
 
-`gen` command will install all dependencies into `gypkg_deps` and will update
-them automatically on next `gen` call.
+`build` command will install all dependencies into `gypkg_deps` and will update
+them automatically on next `build` call.
 
 ## Dependency management
 
@@ -145,3 +144,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [2]: #usage
 [3]: #examples
 [4]: https://github.com/indutny/gypkg/blob/master/bin/gypkg
+[5]: https://ninja-build.org/

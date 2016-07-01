@@ -32,39 +32,61 @@ npm install -g gypkg
 
 ## Usage
 
-A `.gyp` file for a C project may be written like this:
+A `build.gyp` file for a C/C++ project may be generated with `gypkg init`, and
+will look like this:
 ```json
 {
-  "targets": [{
-    "target_name": "proj",
+  "variables": {
+    "gypkg_deps": [
+      # Place for `gypkg` dependencies
+    ],
+  },
 
-    # So far this returns only `static_library`
+  "targets": [ {
+    "target_name": "my-lib",
     "type": "<!(gypkg type)",
 
-    "variables": {
-      "gypkg_deps": [
-        # repo-addr@semver => path/to/file.gyp:target_name
-        "git://github.com/libuv/libuv@^1.9.1 => uv.gyp:libuv",
+    "dependencies": [
+      "<!@(gypkg deps <(gypkg_deps))",
+      # Place for local dependencies
+    ],
+
+    "direct_dependent_settings": {
+      "include_dirs": [
+        # Place for public includes
+        "include",
       ],
     },
 
-    "dependencies": [
-      "<!@(gypkg deps <(gypkg_deps))"
-    ],
-
-    "direct_dependent_settings": [
-      "include_dirs": [ "include" ],
+    "include_dirs": [
+      # Place for private includes
+      ".",
     ],
 
     "sources": [
-      "src/main.c",
+      # Place for source files
     ],
-  }]
+  } ],
 }
 ```
 
+Dependencies could be added to `gypkg_deps`:
+```json
+"gypkg_deps": [
+  # repo-addr@semver => path/to/file.gyp:target_name
+  "git://github.com/libuv/libuv@^1.9.1 => uv.gyp:libuv",
+],
+```
+
+Source files to `sources`:
+```json
+"sources": [
+  "src/main.c",
+],
+```
+
 Then a `gypkg` CLI tool can be used to build a project (NOTE: while [`ninja`][5]
-is not necessary it is required for incremental builds):
+is not necessary, it is recommended for fast incremental builds):
 
 ```bash
 gypkg build file.gyp -- -Duv_library=static-library

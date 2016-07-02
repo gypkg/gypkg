@@ -3,21 +3,26 @@
 
 A [GYP][0]-based package manager for C projects.
 
+## Helping project
+
+Please check the latest [issues][6].
+
 ## Why?
 
-[GYP][0] is a very lovely way to manage dependencies, however the amount of the
-boilerplate code required to build the project is very huge:
+[GYP][0] has a very lovely way to manage dependencies, however the amount of the
+boilerplate code required to build a project is very huge:
 
 * Project's own `gyp` repository checkout
 * `common.gypi` file with default compiler warning flags, etc
-* `gyp_project_name` executable python script that sets proper [GYP][0] defines
-  and executes `gyp_main.py`
-* Dependencies has to be checked out into the project tree
-* Subdependencies can't be easily shared between different dependencies
-  (`a` depends on `b` and `c`; `b` depends on `c`)
+* `gyp_project_name` executable python script to set proper [GYP][0] defines
+  and execute `gyp_main.py`
+* Dependencies checked out into the project tree
 
 All of this has to be repeated in every project, but fear not - `gypkg` fixes
 this and also a dependency management problem as well.
+
+Additionally, `gypkg` solves the problem with duplicate sub-dependencies
+(`a` depends on `b` and `c`; `b` depends on `c`).
 
 ## Installation
 
@@ -167,3 +172,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [3]: #examples
 [4]: https://github.com/indutny/gypkg/blob/master/bin/gypkg
 [5]: https://ninja-build.org/
+[6]: https://github.com/gypkg/gypkg/issues

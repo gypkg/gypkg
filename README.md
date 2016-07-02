@@ -174,4 +174,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [4]: https://github.com/indutny/gypkg/blob/master/bin/gypkg
 [5]: https://ninja-build.org/
 [6]: https://github.com/gypkg/gypkg/issues
-[7]: https://github.com/gypkg/gypkg/wiki/Projects
+[7]: https://github.com/gypkg/gypkg/wiki/projects

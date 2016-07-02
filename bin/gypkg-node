@@ -4,6 +4,7 @@
  */
 'use strict';
 
+const fs = require('fs');
 const util = require('util');
 
 const gypkg = require('../');
@@ -20,14 +21,14 @@ const genOptions = (argv) => {
 
 const yargs = require('yargs')
     .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
-    .command('build <gyp-file>',
+    .command('build [gyp-file]',
              'build all projects in a .gyp file', (argv) => {
                return genOptions(argv)
                   .alias('c', 'config')
                   .default('c', 'Release')
                   .describe('c', 'configuration to build');
              })
-    .command('gen <gyp-file>',
+    .command('gen [gyp-file]',
              'generate build configuration out of .gyp file', genOptions)
     .command('init [gyp-file]',
              'initialize boilerplate .gyp file')
@@ -46,7 +47,20 @@ if (cmd === 'gen' || cmd === 'build') {
     config: cmd === 'build' && argv.config
   });
 
-  return server.generate(argv['gyp-file'], argv._.slice(1), (err) => {
+  function findBuildFile(cwd) {
+    const files = fs.readdirSync(cwd)
+        .filter(file => /\.gyp$/.test(file))
+        // Do not attempt to build npm files
+        .filter(file => file !== 'binding.gyp');
+    if (files.length === 0)
+      throw new Error('No .gyp file found in current directory');
+
+    return files[0];
+  }
+
+  const gypFile = argv['gyp-file'] || findBuildFile(process.cwd());
+
+  return server.generate(gypFile, argv._.slice(1), (err) => {
     if (err)
       throw err;
 

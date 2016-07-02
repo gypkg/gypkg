@@ -5,7 +5,8 @@ A [GYP][0]-based package manager for C projects.
 
 ## Helping project
 
-Please check the latest [issues][6].
+Please check the latest [issues][6], or contribute gypkg-projects to the
+[wiki][7].
 
 ## Why?
 
@@ -173,3 +174,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [4]: https://github.com/indutny/gypkg/blob/master/bin/gypkg
 [5]: https://ninja-build.org/
 [6]: https://github.com/gypkg/gypkg/issues
+[7]: https://github.com/gypkg/gypkg/wiki/Projects

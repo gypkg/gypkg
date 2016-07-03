@@ -76,7 +76,13 @@ if (cmd === 'deps') {
     if (err)
       throw err;
 
-    console.log(paths.join('\n'));
+    const out = paths.join('\n');
+
+    // Escape `\` on Windows, because shlex.split will eat them
+    if (process.platform === 'win32')
+      console.log(out.replace(/\\/g, '\\\\');
+    else
+      console.log(out);
   });
 }
 

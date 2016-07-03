@@ -80,7 +80,7 @@ if (cmd === 'deps') {
 
     // Escape `\` on Windows, because shlex.split will eat them
     if (process.platform === 'win32')
-      console.log(out.replace(/\\/g, '\\\\');
+      console.log(out.replace(/\\/g, '\\\\'));
     else
       console.log(out);
   });

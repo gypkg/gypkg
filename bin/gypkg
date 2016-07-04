@@ -44,7 +44,8 @@ if (cmd === 'gen' || cmd === 'build') {
   const server = new gypkg.Server({
     verbose: argv.verbose,
     freeze: argv.freeze,
-    config: cmd === 'build' && argv.config
+    config: cmd === 'build' && argv.config,
+    resultType: argv.type
   });
 
   function findBuildFile(cwd) {
@@ -69,27 +70,27 @@ if (cmd === 'gen' || cmd === 'build') {
   });
 }
 
-if (cmd === 'deps') {
+if (cmd === 'deps' || cmd === 'type') {
   const client = new gypkg.Client({ verbose: argv.verbose });
 
-  return client.deps(argv._.slice(1), (err, paths) => {
+  function escape(str) {
+    // Escape `\` on Windows, because shlex.split will eat them
+    if (process.platform === 'win32')
+      return str.replace(/\\/g, '\\\\');
+    else
+      return str;
+  }
+
+  return client.cmd(cmd, argv._.slice(1), (err, out) => {
     if (err)
       throw err;
 
-    const out = paths.join('\n');
-
-    // Escape `\` on Windows, because shlex.split will eat them
-    if (process.platform === 'win32')
-      console.log(out.replace(/\\/g, '\\\\'));
+    if (Array.isArray(out))
+      out = out.map(escape).join('\n');
     else
-      console.log(out);
+      out = escape(out);
+    console.log(out);
   });
-}
-
-// TODO(indutny): This needs some serious consideration
-if (cmd === 'type') {
-  console.log('static_library');
-  return;
 }
 
 if (cmd === 'init') {

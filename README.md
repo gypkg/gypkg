@@ -1,5 +1,6 @@
 # gypkg
 [![NPM version](https://badge.fury.io/js/gypkg.svg)](http://badge.fury.io/js/gypkg)
+[![Build Status](https://secure.travis-ci.org/gypkg/gypkg.svg)](http://travis-ci.org/gypkg/gypkg)
 
 A [GYP][0]-based package manager for C projects.
 
@@ -171,7 +172,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [1]: https://github.com/indutny/file-shooter/blob/master/file-shooter.gyp
 [2]: #usage
 [3]: #examples
-[4]: https://github.com/indutny/gypkg/blob/master/bin/gypkg
+[4]: https://github.com/gypkg/gypkg/blob/master/bin/gypkg
 [5]: https://ninja-build.org/
 [6]: https://github.com/gypkg/gypkg/issues
 [7]: https://github.com/gypkg/gypkg/wiki/projects

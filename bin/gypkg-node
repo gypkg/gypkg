@@ -93,7 +93,7 @@ if (cmd === 'type') {
 }
 
 if (cmd === 'init') {
-  gypkg.commands.init(argv._.slice(1));
+  gypkg.commands.init(argv['gyp-file']);
   return;
 }
 

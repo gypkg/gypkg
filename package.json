@@ -33,6 +33,7 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "rimraf": "^2.5.3"
   }
 }

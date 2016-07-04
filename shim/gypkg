@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+import os
+import sys
+import subprocess
+import json
+import re
+
+GIT = os.environ.get('GIT_SSH_COMMAND')
+if not GIT:
+  GIT = os.environ.get('GIT_SSH')
+if not GIT:
+  GIT = os.environ.get('GIT_EXEC_PATH')
+if not GIT:
+  GIT = 'git'
+
+git_lock_pattern = re.compile('index.lock')
+
+def print_usage():
+  sys.stderr.write('usage: %s deps [...list...]\n' % sys.argv[0])
+  sys.stderr.write('       %s type\n' % sys.argv[0])
+  sys.exit(2)
+
+
+def run_git(args, cwd=None):
+  while True:
+    proc = subprocess.Popen(args, stdin=sys.stdin, stdout = subprocess.PIPE,
+                            stderr = subprocess.PIPE,
+                            cwd=cwd)
+
+    stdout, stderr = proc.communicate('')
+    if proc.wait() != 0:
+      if git_lock_pattern.search(stderr) != None:
+        # Sleep for 250ms and retry if git directory is locked
+        time.sleep(0.25)
+        continue
+      sys.stderr.write(stderr)
+      sys.exit(proc.wait())
+    return stdout
+
+
+def clone_dep(info, subdir):
+  run_git([ GIT, 'clone', info['source'], subdir ])
+  run_git([ GIT, 'reset', '--hard', info['hash'] ], cwd=subdir)
+
+
+def deps(items):
+  root = os.environ.get('GYPKG_ROOT')
+  if root is None:
+    root = os.getcwd()
+  while True:
+    freeze = os.path.join(root, '.gypkg-freeze')
+    if os.path.exists(freeze):
+      break
+    root = os.path.normpath(os.path.join(root, '..'))
+    # TODO(indutny): Windows
+    if root == '/':
+      sys.stderr.write('No .gypkg-freeze file found\n')
+      sys.exit(1)
+
+  f = open(freeze, 'r')
+  content = f.read()
+  f.close()
+  freeze = json.loads(content)
+
+  deps_dir = os.path.join(root, 'gypkg_deps')
+  for item in items:
+    if item not in freeze:
+      sys.stderr.write(
+              'Unknown dependency %s, please run `gypkg gen -f ...`\n' % item)
+      sys.exit(2)
+
+    info = freeze[str(item)]
+    if info['type'] == 'local':
+      print os.path.join(info.source, info['gyp']) + ':' + info['target']
+      continue
+
+    subdir = os.path.join(deps_dir, info['dir'])
+    if not os.path.exists(subdir):
+      clone_dep(info, subdir)
+    print os.path.join(subdir, info['gyp']) + ':' + info['target']
+
+
+if __name__ == '__main__':
+  if len(sys.argv) < 2:
+    print_usage()
+
+  if sys.argv[1] == 'type':
+    print 'static_library'
+    sys.exit(0)
+
+  if sys.argv[1] == 'gen':
+    sys.stderr.write('not available in minimalistic shim\n')
+    sys.exit(1)
+
+  if sys.argv[1] == 'deps':
+    deps(sys.argv[2:])
+    sys.exit(0)

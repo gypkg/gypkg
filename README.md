@@ -136,12 +136,12 @@ in parallel, it may be required for gypkg-based project to be distributed to
 the platforms without Node.js binaries.
 
 In this case `gypkg gen --freeze file.gyp` can be used to generate
-`.gypkg-freeze` file, which will help [./bin/gypkg][4] python shim in resolving
+`.gypkg-freeze` file, which will help [./shim/gypkg][4] python shim in resolving
 all dependencies statically.
 
-`.gypkg-freeze` and [./bin/gypkg][4] should be distributed with the project in
+`.gypkg-freeze` and [./shim/gypkg][4] should be distributed with the project in
 such cases , and the project users should be advised to extend their `PATH`
-environment variable with a folder that contains [./bin/gypkg][4] script.
+environment variable with a folder that contains [./shim/gypkg][4] script.
 
 ## LICENSE
 

@@ -1,11 +1,9 @@
 #!/usr/bin/env node
-/*
- * PLEASE USE `gypkg` in `.gyp` files
- */
+/* eslint-disable no-console */
+
 'use strict';
 
 const fs = require('fs');
-const util = require('util');
 
 const gypkg = require('../');
 
@@ -40,6 +38,17 @@ const yargs = require('yargs')
 const argv = yargs.argv;
 const cmd = argv._[0];
 
+function findBuildFile(cwd) {
+  const files = fs.readdirSync(cwd)
+      .filter(file => /\.gyp$/.test(file))
+      // Do not attempt to build npm files
+      .filter(file => file !== 'binding.gyp');
+  if (files.length === 0)
+    throw new Error('No .gyp file found in current directory');
+
+  return files[0];
+}
+
 if (cmd === 'gen' || cmd === 'build') {
   const server = new gypkg.Server({
     verbose: argv.verbose,
@@ -47,17 +56,6 @@ if (cmd === 'gen' || cmd === 'build') {
     config: cmd === 'build' && argv.config,
     resultType: argv.type
   });
-
-  function findBuildFile(cwd) {
-    const files = fs.readdirSync(cwd)
-        .filter(file => /\.gyp$/.test(file))
-        // Do not attempt to build npm files
-        .filter(file => file !== 'binding.gyp');
-    if (files.length === 0)
-      throw new Error('No .gyp file found in current directory');
-
-    return files[0];
-  }
 
   const gypFile = argv['gyp-file'] || findBuildFile(process.cwd());
 
@@ -70,16 +68,16 @@ if (cmd === 'gen' || cmd === 'build') {
   });
 }
 
+function escape(str) {
+  // Escape `\` on Windows, because shlex.split will eat them
+  if (process.platform === 'win32')
+    return str.replace(/\\/g, '\\\\');
+  else
+    return str;
+}
+
 if (cmd === 'deps' || cmd === 'type') {
   const client = new gypkg.Client({ verbose: argv.verbose });
-
-  function escape(str) {
-    // Escape `\` on Windows, because shlex.split will eat them
-    if (process.platform === 'win32')
-      return str.replace(/\\/g, '\\\\');
-    else
-      return str;
-  }
 
   return client.cmd(cmd, argv._.slice(1), (err, out) => {
     if (err)

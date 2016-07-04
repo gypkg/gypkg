@@ -7,7 +7,9 @@
   },
   "main": "lib/gypkg.js",
   "scripts": {
-    "test": "mocha --reporter=spec test/*-test.js"
+    "lint": "make lint",
+    "format": "make format",
+    "test": "mocha --reporter=spec test/*-test.js && npm run lint"
   },
   "repository": {
     "type": "git",
@@ -33,6 +35,7 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
+    "eslint": "^3.0.0",
     "mocha": "^2.5.3",
     "rimraf": "^2.5.3"
   }

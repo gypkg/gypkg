@@ -40,7 +40,7 @@ function build(name) {
     if (p.status !== 0 && p.stdout)
       console.error(p.stdout.toString());
     if (p.error)
-      return cb(p.error);
+      throw p.error;
     assert.equal(p.status, 0, `test ${name}`);
   });
 }

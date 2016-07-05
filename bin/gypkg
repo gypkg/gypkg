@@ -18,7 +18,7 @@ const genOptions = (argv) => {
 };
 
 const yargs = require('yargs')
-    .usage('$0 gen project.gyp -- [optional extra args to `gyp`]')
+    .usage('$0 build project.gyp -- [optional extra args to `gyp`]')
     .command('build [gyp-file]',
              'build all projects in a .gyp file', (argv) => {
                return genOptions(argv)

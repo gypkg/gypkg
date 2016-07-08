@@ -7,6 +7,8 @@ const fs = require('fs');
 
 const gypkg = require('../');
 
+const colors = require('colors/safe');;
+
 const genOptions = (argv) => {
   return argv
       .alias('f', 'freeze')
@@ -64,7 +66,8 @@ if (cmd === 'gen' || cmd === 'build') {
       throw err;
 
   }).on('log', (line, progress) => {
-    console.error(`[${(progress * 100).toFixed(0)}%] ${line}`);
+    console.error(colors.black(`[${(progress * 100).toFixed(0)}%]`) +
+                  ` ${line}`);
   });
 }
 

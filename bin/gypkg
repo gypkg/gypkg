@@ -63,8 +63,8 @@ if (cmd === 'gen' || cmd === 'build') {
     if (err)
       throw err;
 
-  }).on('log', (line) => {
-    console.error(line);
+  }).on('log', (line, progress) => {
+    console.error(`[${(progress * 100).toFixed(0)}%] ${line}`);
   });
 }
 

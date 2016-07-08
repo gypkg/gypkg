@@ -28,6 +28,7 @@
   "homepage": "https://github.com/indutny/gypkg#readme",
   "dependencies": {
     "async": "^2.0.0-rc.5",
+    "git-secure-tag": "^2.2.0",
     "gyp.js": "^1.4.0",
     "progress": "^1.1.8",
     "read": "^1.0.7",

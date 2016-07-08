@@ -120,7 +120,10 @@ The syntax for declaring dependencies is:
   checkout particular branch/hash of remote dependency
 * `git://github.com/author/project@semver => /path/to/main.gyp:target_name` -
   checkout whole repository and find the latest version-tag (the on that starts
-  with `v`) that matches the particular `semver`.
+  with `v`) that matches the particular `semver`
+* `git://github.com/author/project@semver [gpg] => ...` -
+  find the latest version tag matching `semver` and verify it's GPG signature
+  and [`Git-EVTag-v0-SHA512`][8].
 
 See [Usage][2] section above, or [Examples][3] below for particular gist of how
 [GYP][0] file may look like.
@@ -176,3 +179,4 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [5]: https://ninja-build.org/
 [6]: https://github.com/gypkg/gypkg/issues
 [7]: https://github.com/gypkg/gypkg/wiki/projects
+[8]: https://github.com/cgwalters/git-evtag

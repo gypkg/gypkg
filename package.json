@@ -1,6 +1,6 @@
 {
   "name": "gypkg",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "description": "GYP based package manager",
   "bin": {
     "gypkg": "bin/gypkg"

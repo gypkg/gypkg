@@ -150,6 +150,9 @@ all dependencies statically.
 such cases , and the project users should be advised to extend their `PATH`
 environment variable with a folder that contains [./shim/gypkg][4] script.
 
+NOTE: no GPG signatures are checked in this mode, since it requires extensive
+Node.js-based tooling.
+
 ## LICENSE
 
 This software is licensed under the MIT License.

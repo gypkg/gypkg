@@ -25,7 +25,7 @@
 <p><a href="http://badge.fury.io/js/gypkg"><img src="https://badge.fury.io/js/gypkg.svg" alt="NPM version"></a>
 <a href="http://travis-ci.org/gypkg/gypkg"><img src="https://secure.travis-ci.org/gypkg/gypkg.svg" alt="Build Status"></a></p>
 
-<p>A <a href="https://gyp.gsrc.io/">GYP</a>-based package manager for C projects.</p>
+<p>A <a href="https://gyp.gsrc.io/">GYP</a>-based package manager for C/C++ projects.</p>
 
 <h2>
 <a id="helping-project" class="anchor" href="#helping-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Helping project</h2>
@@ -156,8 +156,11 @@ with <code>v</code>) that matches the particular <code>semver</code>
 </li>
 <li>
 <code>git://github.com/author/project@semver [gpg] =&gt; ...</code> -
-find the latest version tag matching <code>semver</code> and verify it's GPG signature
-and <a href="https://github.com/cgwalters/git-evtag"><code>Git-EVTag-v0-SHA512</code></a>.</li>
+find the latest version tag matching <code>semver</code> and verify it's
+<a href="https://github.com/indutny/scoped-gpg">GPG signature</a> and <a href="https://github.com/cgwalters/git-evtag"><code>Git-EVTag-v0-SHA512</code></a>. Note: this type of
+dependency will maintain a project local GPG keyrings for each github team
+name or explicit scope (specified with <code>[gpg=scope-name]</code>). <code>gypkg build</code> will
+ask for confirmation before adding any new keys to those keyrings.</li>
 </ul>
 
 <p>See <a href="#usage">Usage</a> section above, or <a href="#examples">Examples</a> below for particular gist of how
@@ -168,6 +171,7 @@ and <a href="https://github.com/cgwalters/git-evtag"><code>Git-EVTag-v0-SHA512</
 
 <ul>
 <li><a href="https://github.com/indutny/file-shooter/blob/master/file-shooter.gyp">file-shooter.gyp</a></li>
+<li><a href="https://github.com/indutny/bud/blob/master/bud.gyp.json">bud.gyp</a></li>
 </ul>
 
 <h2>

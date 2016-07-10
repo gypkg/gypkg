@@ -122,8 +122,11 @@ The syntax for declaring dependencies is:
   checkout whole repository and find the latest version-tag (the on that starts
   with `v`) that matches the particular `semver`
 * `git://github.com/author/project@semver [gpg] => ...` -
-  find the latest version tag matching `semver` and verify it's GPG signature
-  and [`Git-EVTag-v0-SHA512`][8].
+  find the latest version tag matching `semver` and verify it's
+  [GPG signature][9] and [`Git-EVTag-v0-SHA512`][8]. Note: this type of
+  dependency will maintain a project local GPG keyrings for each github team
+  name or explicit scope (specified with `[gpg=scope-name]`). `gypkg build` will
+  ask for confirmation before adding any new keys to those keyrings.
 
 See [Usage][2] section above, or [Examples][3] below for particular gist of how
 [GYP][0] file may look like.
@@ -131,6 +134,7 @@ See [Usage][2] section above, or [Examples][3] below for particular gist of how
 ## Examples
 
 * [file-shooter.gyp][1]
+* [bud.gyp][10]
 
 ## Compatbility
 
@@ -180,3 +184,5 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 [6]: https://github.com/gypkg/gypkg/issues
 [7]: https://github.com/gypkg/gypkg/wiki/projects
 [8]: https://github.com/cgwalters/git-evtag
+[9]: https://github.com/indutny/scoped-gpg
+[10]: https://github.com/indutny/bud/blob/master/bud.gyp.json

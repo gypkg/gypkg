@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>gypkg by gypkg</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">gypkg</h1>
+      <h2 class="project-tagline">GYP-based package manager</h2>
+      <a href="https://github.com/gypkg/gypkg" class="btn">View on GitHub</a>
+      <a href="https://github.com/gypkg/gypkg/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/gypkg/gypkg/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="gypkg" class="anchor" href="#gypkg" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>gypkg</h1>
+
+<p><a href="http://badge.fury.io/js/gypkg"><img src="https://badge.fury.io/js/gypkg.svg" alt="NPM version"></a>
+<a href="http://travis-ci.org/gypkg/gypkg"><img src="https://secure.travis-ci.org/gypkg/gypkg.svg" alt="Build Status"></a></p>
+
+<p>A <a href="https://gyp.gsrc.io/">GYP</a>-based package manager for C projects.</p>
+
+<h2>
+<a id="helping-project" class="anchor" href="#helping-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Helping project</h2>
+
+<p>Please check the latest <a href="https://github.com/gypkg/gypkg/issues">issues</a>, or contribute gypkg-projects to the
+<a href="https://github.com/gypkg/gypkg/wiki/projects">wiki</a>.</p>
+
+<h2>
+<a id="why" class="anchor" href="#why" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why?</h2>
+
+<p><a href="https://gyp.gsrc.io/">GYP</a> has a very lovely way to manage dependencies, however the amount of the
+boilerplate code required to build a project is very huge:</p>
+
+<ul>
+<li>Project's own <code>gyp</code> repository checkout</li>
+<li>
+<code>common.gypi</code> file with default compiler warning flags, etc</li>
+<li>
+<code>gyp_project_name</code> executable python script to set proper <a href="https://gyp.gsrc.io/">GYP</a> defines
+and execute <code>gyp_main.py</code>
+</li>
+<li>Dependencies checked out into the project tree</li>
+</ul>
+
+<p>All of this has to be repeated in every project, but fear not - <code>gypkg</code> fixes
+this and also a dependency management problem as well.</p>
+
+<p>Additionally, <code>gypkg</code> solves the problem with duplicate sub-dependencies
+(<code>a</code> depends on <code>b</code> and <code>c</code>; <code>b</code> depends on <code>c</code>).</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-c"># Node.js is required to run this</span>
+npm install -g gypkg</pre></div>
+
+<h2>
+<a id="demo" class="anchor" href="#demo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Demo</h2>
+
+<p><a href="https://asciinema.org/a/48171"><img src="https://asciinema.org/a/48171.png" alt="asciicast"></a></p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>A <code>build.gyp</code> file for a C/C++ project may be generated with <code>gypkg init</code>, and
+will look like this:</p>
+
+<div class="highlight highlight-source-python"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>variables<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>gypkg_deps<span class="pl-pds">"</span></span>: [
+      <span class="pl-c"># Place for `gypkg` dependencies</span>
+    ],
+  },
+
+  <span class="pl-s"><span class="pl-pds">"</span>targets<span class="pl-pds">"</span></span>: [ {
+    <span class="pl-s"><span class="pl-pds">"</span>target_name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>my-lib<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>type<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>&lt;!(gypkg type)<span class="pl-pds">"</span></span>,
+
+    <span class="pl-s"><span class="pl-pds">"</span>dependencies<span class="pl-pds">"</span></span>: [
+      <span class="pl-s"><span class="pl-pds">"</span>&lt;!@(gypkg deps &lt;(gypkg_deps))<span class="pl-pds">"</span></span>,
+      <span class="pl-c"># Place for local dependencies</span>
+    ],
+
+    <span class="pl-s"><span class="pl-pds">"</span>direct_dependent_settings<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>include_dirs<span class="pl-pds">"</span></span>: [
+        <span class="pl-c"># Place for public includes</span>
+        <span class="pl-s"><span class="pl-pds">"</span>include<span class="pl-pds">"</span></span>,
+      ],
+    },
+
+    <span class="pl-s"><span class="pl-pds">"</span>include_dirs<span class="pl-pds">"</span></span>: [
+      <span class="pl-c"># Place for private includes</span>
+      <span class="pl-s"><span class="pl-pds">"</span>.<span class="pl-pds">"</span></span>,
+    ],
+
+    <span class="pl-s"><span class="pl-pds">"</span>sources<span class="pl-pds">"</span></span>: [
+      <span class="pl-c"># Place for source files</span>
+    ],
+  } ],
+}</pre></div>
+
+<p>Dependencies could be added to <code>gypkg_deps</code>:</p>
+
+<div class="highlight highlight-source-python"><pre><span class="pl-s"><span class="pl-pds">"</span>gypkg_deps<span class="pl-pds">"</span></span>: [
+  <span class="pl-c"># repo-addr@semver =&gt; path/to/file.gyp:target_name</span>
+  <span class="pl-s"><span class="pl-pds">"</span>git://github.com/libuv/libuv@^1.9.1 =&gt; uv.gyp:libuv<span class="pl-pds">"</span></span>,
+],</pre></div>
+
+<p>Source files to <code>sources</code>:</p>
+
+<div class="highlight highlight-source-python"><pre><span class="pl-s"><span class="pl-pds">"</span>sources<span class="pl-pds">"</span></span>: [
+  <span class="pl-s"><span class="pl-pds">"</span>src/main.c<span class="pl-pds">"</span></span>,
+],</pre></div>
+
+<p>Then a <code>gypkg</code> CLI tool can be used to build a project (NOTE: while <a href="https://ninja-build.org/"><code>ninja</code></a>
+is not necessary, it is recommended for fast incremental builds):</p>
+
+<div class="highlight highlight-source-shell"><pre>gypkg build file.gyp -- -Duv_library=static-library</pre></div>
+
+<p><code>build</code> command will install all dependencies into <code>gypkg_deps</code> and will update
+them automatically on next <code>build</code> call.</p>
+
+<h2>
+<a id="dependency-management" class="anchor" href="#dependency-management" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependency management</h2>
+
+<p><code>gypkg</code> supports local and remote (git) dependencies. Remote dependencies are
+installed into <code>gypkg_deps/</code> folder in the root directory of the project (the
+one that has the main <code>.gyp</code> file). Nested dependencies still live in the same
+<code>gypkg_deps/</code> in the root directory.</p>
+
+<p>The syntax for declaring dependencies is:</p>
+
+<ul>
+<li>
+<code>/path/to/dependency =&gt; /sub/path/to/main.gyp:target_name</code> - use local
+dependency</li>
+<li>
+<code>git://github.com/author/project =&gt; /path/to/main.gyp:target_name</code> -
+checkout the latest commit of remote dependency. Note that (<code>https://</code> and
+<code>git@</code> are supported too)</li>
+<li>
+<code>git://github.com/author/project#branch =&gt; /path/to/main.gyp:target_name</code> -
+checkout particular branch/hash of remote dependency</li>
+<li>
+<code>git://github.com/author/project@semver =&gt; /path/to/main.gyp:target_name</code> -
+checkout whole repository and find the latest version-tag (the on that starts
+with <code>v</code>) that matches the particular <code>semver</code>
+</li>
+<li>
+<code>git://github.com/author/project@semver [gpg] =&gt; ...</code> -
+find the latest version tag matching <code>semver</code> and verify it's GPG signature
+and <a href="https://github.com/cgwalters/git-evtag"><code>Git-EVTag-v0-SHA512</code></a>.</li>
+</ul>
+
+<p>See <a href="#usage">Usage</a> section above, or <a href="#examples">Examples</a> below for particular gist of how
+<a href="https://gyp.gsrc.io/">GYP</a> file may look like.</p>
+
+<h2>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h2>
+
+<ul>
+<li><a href="https://github.com/indutny/file-shooter/blob/master/file-shooter.gyp">file-shooter.gyp</a></li>
+</ul>
+
+<h2>
+<a id="compatbility" class="anchor" href="#compatbility" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Compatbility</h2>
+
+<p>While Node.js implementation of <code>gypkg</code> loads dependencies in asynchronously and
+in parallel, it may be required for gypkg-based project to be distributed to
+the platforms without Node.js binaries.</p>
+
+<p>In this case <code>gypkg gen --freeze file.gyp</code> can be used to generate
+<code>.gypkg-freeze</code> file, which will help <a href="https://github.com/gypkg/gypkg/blob/master/bin/gypkg">./shim/gypkg</a> python shim in resolving
+all dependencies statically.</p>
+
+<p><code>.gypkg-freeze</code> and <a href="https://github.com/gypkg/gypkg/blob/master/bin/gypkg">./shim/gypkg</a> should be distributed with the project in
+such cases , and the project users should be advised to extend their <code>PATH</code>
+environment variable with a folder that contains <a href="https://github.com/gypkg/gypkg/blob/master/bin/gypkg">./shim/gypkg</a> script.</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LICENSE</h2>
+
+<p>This software is licensed under the MIT License.</p>
+
+<p>Copyright Fedor Indutny, 2016.</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the
+following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/gypkg/gypkg">gypkg</a> is maintained by <a href="https://github.com/gypkg">gypkg</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>

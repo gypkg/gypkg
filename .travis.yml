@@ -1,7 +1,8 @@
 language: node_js
 sudo: false
 before_script:
-  - gpg --keyserver hkp://keys.gnupg.net --recv-keys 6A4781FB
+  - mkdir -p test/projects/gpg/gypkg_deps
+  - gpg --no-default-keyring --keyring test/projects/gpg/gypkg_deps/.gpg-scope-gypkg --keyserver hkp://keys.gnupg.net --recv-keys 6A4781FB
 node_js:
   - "4"
   - "5"

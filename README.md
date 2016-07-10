@@ -41,7 +41,7 @@ npm install -g gypkg
 
 A `build.gyp` file for a C/C++ project may be generated with `gypkg init`, and
 will look like this:
-```json
+```python
 {
   "variables": {
     "gypkg_deps": [
@@ -78,7 +78,7 @@ will look like this:
 ```
 
 Dependencies could be added to `gypkg_deps`:
-```json
+```python
 "gypkg_deps": [
   # repo-addr@semver => path/to/file.gyp:target_name
   "git://github.com/libuv/libuv@^1.9.1 => uv.gyp:libuv",
@@ -86,7 +86,7 @@ Dependencies could be added to `gypkg_deps`:
 ```
 
 Source files to `sources`:
-```json
+```python
 "sources": [
   "src/main.c",
 ],

@@ -16,7 +16,9 @@ const genOptions = (argv) => {
       .describe('f', 'generate .gypkg-freeze file')
       .alias('v', 'verbose')
       .boolean('v')
-      .describe('v', 'print verbose output');
+      .describe('v', 'print verbose output')
+      .boolean('insecure')
+      .describe('insecure', 'do not verify GPG signatures');
 };
 
 const yargs = require('yargs')
@@ -55,6 +57,8 @@ if (cmd === 'gen' || cmd === 'build') {
   const server = new gypkg.Server({
     verbose: argv.verbose,
     freeze: argv.freeze,
+    insecure: argv.insecure,
+
     config: cmd === 'build' && argv.config,
     resultType: argv.type
   });

@@ -96,7 +96,7 @@ Then a `gypkg` CLI tool can be used to build a project (NOTE: while [`ninja`][5]
 is not necessary, it is recommended for fast incremental builds):
 
 ```bash
-gypkg build file.gyp -- -Duv_library=static-library
+gypkg build file.gyp -- -Duv_library=static_library
 ```
 
 `build` command will install all dependencies into `gypkg_deps` and will update
